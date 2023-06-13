@@ -26,8 +26,10 @@ time_period = 1000
 sec = 0
 min = 0
 hour = 0
-occupancy = 1
 last_millis = 0
+
+get_update_interval = 300000
+lastupdate = 0
 
 
 def timeCount():
@@ -44,8 +46,8 @@ def timeCount():
 while True:
   globals()["this_millis"] = int(time.time()*1000)#nanosec to millisec
   print("Reading Firebase")
-  # occupancy_ref=db.child("data/occupancy/status").get()
-  # occupancy=occupancy_ref.val()
+  occupancy_ref=db.child("data/occupancy/status").get()
+  occupancy=occupancy_ref.val()
   if occupancy == 1:
     if globals()["this_millis"] - last_millis > time_period:
       print("Triggered")
@@ -75,5 +77,8 @@ while True:
       "hours":globals()["hour"]
     }
   }
-  db.update(data)
-  print("Firebase Successfully Updated")
+  if globals()["this_millis"]-lastupdate>get_update_interval:
+    lastupdate = this_millis
+    db.update(data)
+    print("Firebase Successfully Updated")
+  
